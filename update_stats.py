@@ -110,5 +110,5 @@ def write_csv_file():
         f.write(content)
 
 stats = get_stats(soup)
-#insert_stats_into_database(stats)
+insert_stats_into_database(stats)
 write_csv_file()

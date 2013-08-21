@@ -1,4 +1,3 @@
 *.swp
 env
 data.csv
-raw_stats.db

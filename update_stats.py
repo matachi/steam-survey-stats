@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import fileinput
 import sqlite3
+import re
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
-data = "data2.tsv"
+data = "data.csv"
 database = "raw_stats.db"
 url = "http://store.steampowered.com/hwsurvey"
 soup = BeautifulSoup(urlopen(url))
@@ -30,24 +30,6 @@ def get_stats(soup):
     return [(operating_systems[x], percentages[x]) for x in
             range(len(operating_systems))]
 
-#def get_stored_operating_systems():
-    #"""Get the operating systems stored in the data file."""
-
-    #stored_operating_systems = []
-
-    #with open(data, 'r') as f:
-        #header = f.readline()
-        #stored_operating_systems = header.split(',')
-        #del stored_operating_systems[0]
-        #for i in range(len(stored_operating_systems)):
-            #stored_operating_systems[i] = stored_operating_systems[i].strip()
-
-    #return stored_operating_systems
-
-#def extract_operating_systems(stats):
-    #"""Make a list of the operating systems in the list of stat tuples."""
-    #return [x[0] for x in stats]
-
 def insert_stats_into_database(stats):
     """Insert the stats into the database."""
 
@@ -55,6 +37,7 @@ def insert_stats_into_database(stats):
     c = conn.cursor()
 
     # Add columns
+    for stat in stats:
         try:
             c.execute(
                 """ALTER TABLE stats
@@ -63,7 +46,7 @@ def insert_stats_into_database(stats):
         except sqlite3.OperationalError:
             pass
 
-    # Insert row containing the month's stats
+    # Insert a row containing the month's stats
     columns = ""
     values = ""
     for stat in stats:
@@ -74,67 +57,58 @@ def insert_stats_into_database(stats):
     conn.commit()
     c.close()
 
-def update_operating_systems_in_data_file(operating_systems):
-    """Open the data file and append new operating systems."""
-
-    # Operating systems read from the Steam survey page
-    operating_systems = set(operating_systems)
-
-    # Operating systems already stored in the local data file
-    stored_operating_systems = get_stored_operating_systems()
-
-    # Operating systems that isn't in the local data file yet
-    new_operating_systems = operating_systems.difference(
-        stored_operating_systems)
-
-    if len(new_operating_systems) > 0:
-
-        #for
-
-        content = []
-
-        with open(data, 'r') as f:
-            content = f.readlines()
-
-        header = content[0].strip()
-        header += ',' + ','.join(new_operating_systems) +'\n'
-        content[0] = header
-
-        zeroes = ""
-        for i in range(len(new_operating_systems)):
-            zeroes += ",0"
-        for i in range(1, len(content)):
-            content[i] = content[i].strip() + zeroes + '\n'
-
-        with open(data, 'w') as f:
-            f.write(''.join(content))
-
 def write_csv_file():
+    """Create/update the csv file containing the OS stats."""
+
+    # For keeping track of what OS every column is
+    cells = {}
+
     conn = sqlite3.connect(database)
     c = conn.cursor()
-    content = ""
-    c.execute("PRAGMA table_info(stats)")
-    for row in c:
-        if row[1] != "id":
-            content += "{},".format(row[1])
-    content = content[:-1] + "\n"
-    c.execute("SELECT * FROM stats ORDER BY id DESC")
-    for row in c:
-        for i in range(1, len(row)):
-            content += "{},".format(row[i])
-        content = content[:-1] + "\n"
+
+    # Header in the csv file
+    content = "date,Windows,Linux,Mac,Other\n"
+
+    # The columns in the stats table
+    # The result looks like this:
+    #     0|id|INTEGER|0||1
+    #     1|date|TEXT|1|0|0
+    #     2|Windows 7 64 bit|TEXT|1|0|0
+    #     3|Windows 8 64 bit|TEXT|1|0|0
+    #     ...
+    rows = c.execute("PRAGMA table_info(stats)").fetchall()
+    # Ignore id and date on position 0 and 1
+    for i in range(2, len(rows)):
+        name = rows[i][1].split(" ")[0]
+        os = ""
+        if name == "Windows":
+            os = "Windows"
+        elif name == "MacOS":
+            os = "Mac"
+        elif name == "Other":
+            os = "Other"
+        else:
+            os = "Linux"
+        # The column position and what OS it is
+        cells[i] = os
+
+    # Fill the content variable with data for the OSes for the different months
+    rows = c.execute("SELECT * FROM stats ORDER BY date ASC").fetchall()
+    for row in rows:
+        # Stats for this month
+        stats = {'Linux': 0, 'Windows': 0, 'Mac': 0, 'Other': 0}
+        for i in range(2, len(row)):
+            # Calculate the sum for each OS
+            stats[cells[i]] += float(row[i])
+        content += "{},{},{},{},{}\n".format(
+            row[1], stats["Windows"], stats["Linux"], stats["Mac"],
+            stats["Other"])
+
     c.close()
+
     with open(data, "w") as f:
         f.write(content)
-
 
 stats = get_stats(soup)
 #insert_stats_into_database(stats)
 write_csv_file()
-#print(','.join([x[0] for x in stats]))
-
-#update_operating_systems_in_data_file(extract_operating_systems(stats))
-
-#with open('data2.tsv', 'w') as f:
-    #for stat in stats:
-        #f.write("{}\t{}\n".format(stat[0], stat[1]))

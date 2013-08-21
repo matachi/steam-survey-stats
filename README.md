@@ -27,6 +27,18 @@ run:
 1. `source env/bin/activate`
 2. `./update_stats.py`
 
+Add stats from previous Steam survey
+------------------------------------
+
+Edit and add rows to the SQLite 3 database [raw_stats.db](raw_stats.db) more or
+less easily with [Sqliteman](http://sqliteman.com/). Install it on Arch Linux
+with `sudo pacman -S sqliteman`. Data from previous Steam surveys can be found
+in articles from doing some searches on the net.
+
+To update the csv file without retrieving the current stats from the hwsurvey
+page, comment out the line `insert_stats_into_database(stats)` in
+[update_stats.py](update_stats.py).
+
 Libraries
 ---------
 

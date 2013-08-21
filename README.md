@@ -16,6 +16,17 @@ Setup
 2. `source env/bin/activate`
 3. `pip install beautifulsoup4`
 
+Add current Steam survey stats
+------------------------------
+
+To update the database and the csv file with the latest/current Steam survey
+data from
+[http://store.steampowered.com/hwsurvey](http://store.steampowered.com/hwsurvey),
+run:
+
+1. `source env/bin/activate`
+2. `./update_stats.py`
+
 Libraries
 ---------
 

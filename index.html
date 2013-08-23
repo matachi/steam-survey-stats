@@ -11,7 +11,9 @@
     }
 
     body {
-      background: radial-gradient(ellipse at center, rgba(49,136,191,1) 0%,rgba(18,84,145,1) 100%);
+      background: radial-gradient(ellipse, rgba(49,136,191,1) 0%, rgba(18,84,145,1) 100%);
+      background: -moz-radial-gradient(ellipse, rgba(49,136,191,1) 0%, rgba(18,84,145,1) 100%);
+      background: -webkit-radial-gradient(ellipse, rgba(49,136,191,1) 0%, rgba(18,84,145,1) 100%);
       color: #fff;
       font-family: 'Maven Pro', sans-serif;
       font-weight: 400;
@@ -34,6 +36,10 @@
       padding: 33px 0 0;
     }
 
+    .slogan {
+      font-size: 20px;
+    }
+
     h2 {
       font-size: 35px;
     }
@@ -54,6 +60,7 @@
 </head>
 <body>
   <h1>Steam Survey Charts</h1>
+  <p class="slogan">Plotting Linux's path to domination on Steam</p>
   <h2><a href="line-chart.html">Line Chart with only Linux and Other</a></h2>
   <h2><a href="multi-series-line-chart.html">Multi Series Line Chart</a></h2>
   <h2><a href="stacked-area-chart.html">Stacked Area Chart</a></h2>

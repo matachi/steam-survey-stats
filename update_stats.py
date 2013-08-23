@@ -71,14 +71,13 @@ def write_csv_file():
 
     # The columns in the stats table
     # The result looks like this:
-    #     0|id|INTEGER|0||1
-    #     1|date|TEXT|1|0|0
-    #     2|Windows 7 64 bit|TEXT|1|0|0
-    #     3|Windows 8 64 bit|TEXT|1|0|0
+    #     0|date|TEXT|1|0|0
+    #     1|Windows 7 64 bit|TEXT|1|0|0
+    #     2|Windows 8 64 bit|TEXT|1|0|0
     #     ...
     rows = c.execute("PRAGMA table_info(stats)").fetchall()
     # Ignore id and date on position 0 and 1
-    for i in range(2, len(rows)):
+    for i in range(1, len(rows)):
         name = rows[i][1].split(" ")[0]
         os = ""
         if name == "Windows":
@@ -97,11 +96,11 @@ def write_csv_file():
     for row in rows:
         # Stats for this month
         stats = {'Linux': 0, 'Windows': 0, 'Mac': 0, 'Other': 0}
-        for i in range(2, len(row)):
+        for i in range(1, len(row)):
             # Calculate the sum for each OS
             stats[cells[i]] += float(row[i])
         content += "{},{},{},{},{}\n".format(
-            row[1], stats["Windows"], stats["Linux"], stats["Mac"],
+            row[0], stats["Windows"], stats["Linux"], stats["Mac"],
             stats["Other"])
 
     c.close()

@@ -29,6 +29,15 @@
     h2 {
       font-size: 35px;
     }
+
+    table caption {
+      font-size: 40px;
+    }
+
+    td {
+      font-size: 20px;
+      padding: 5px 20px;
+    }
   </style>
 </head>
 <body>
@@ -36,5 +45,45 @@
   <h2><a href="multi-series-line-chart.html">Multi Series Line Chart</a></h2>
   <h2><a href="stacked-area-chart.html">Stacked Area Chart</a></h2>
   <h2><a href="grouped-bar-chart.html">Grouped Bar Chart</a></h2>
+  <table>
+    <caption>Data points</caption>
+    <thead>
+      <tr>
+        <td>Date</td>
+        <td>Windows</td>
+        <td>Linux</td>
+        <td>Mac</td>
+        <td>Other</td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <script src="http://d3js.org/d3.v3.js"></script>
+  <script>
+    d3.csv("data.csv", function(error, data) {
+      var tbody = document.getElementsByTagName("tbody")[0];
+      data.forEach(function(d) {
+        var parseDate = d3.time.format("%Y%m%d").parse;
+        var formatDate = d3.time.format("%B %y");
+        function add_cell(tr, name) {
+          var td = document.createElement("td");
+          if (name == "date") {
+            td.innerHTML = formatDate(parseDate(d.date));
+          } else {
+            td.innerHTML = Math.round(d[name] * 100) /100;
+          }
+          tr.appendChild(td);
+        }
+        var tr = document.createElement("tr");
+        add_cell(tr, 'date');
+        add_cell(tr, 'Windows');
+        add_cell(tr, 'Linux');
+        add_cell(tr, 'Mac');
+        add_cell(tr, 'Other');
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
 </body>
 </html>

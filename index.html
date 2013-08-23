@@ -78,7 +78,7 @@
           if (name == "date") {
             td.innerHTML = formatDate(parseDate(d.date));
           } else {
-            td.innerHTML = Math.round(d[name] * 100) /100;
+            td.innerHTML = parseFloat(d[name]).toFixed(2);
           }
           tr.appendChild(td);
         }

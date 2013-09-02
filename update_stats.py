@@ -4,6 +4,7 @@ import sqlite3
 import re
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+from datetime import date, timedelta
 
 data = "data.csv"
 database = "raw_stats.db"
@@ -52,8 +53,11 @@ def insert_stats_into_database(stats):
     for stat in stats:
         columns += "'{}',".format(stat[0].replace(".", "_"))
         values += "'{}',".format(stat[1])
+    # If it's September 2013, then time = 20130801. Because the Steam Stats
+    # page shows the stats for the previous month.
+    time = (date.today() - timedelta(28)).strftime("%Y%m") + "01"
     c.execute("""INSERT INTO stats('date', {})
-                 VALUES ('lol', {});""".format(columns[:-1], values[:-1]))
+                 VALUES ({}, {});""".format(columns[:-1], time, values[:-1]))
     conn.commit()
     c.close()
 
